@@ -13,8 +13,14 @@ export default function Home() {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [swipeDirection, setSwipeDirection] = useState("");
   const [isOnline, setIsOnline] = useState(true);
+  const [showInstallModal, setShowInstallModal] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
+    // Detect iOS
+    const isIOSDevice = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    setIsIOS(isIOSDevice);
+
     // Feature 2: Dark Mode - Check saved preference
     const savedDarkMode = localStorage.getItem("darkMode") === "true";
     setDarkMode(savedDarkMode);
@@ -131,15 +137,17 @@ export default function Home() {
   };
 
   // Feature 9: Install App
-  const installApp = async () => {
+  const handleInstallClick = async () => {
     if (installPrompt) {
+      // Android/Chrome - use native install prompt
       installPrompt.prompt();
       const { outcome } = await installPrompt.userChoice;
       if (outcome === "accepted") {
         setInstallPrompt(null);
       }
     } else {
-      alert("App is already installed or install prompt not available");
+      // iOS or other browsers - show modal with instructions
+      setShowInstallModal(true);
     }
   };
 
@@ -179,28 +187,81 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Prominent Install Button */}
-            {installPrompt ? (
-              <button
-                onClick={installApp}
-                className="bg-white text-blue-600 dark:text-blue-800 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 transition-all shadow-lg flex items-center gap-2 self-start sm:self-auto"
-              >
-                <span className="text-2xl">📲</span>
-                <span>Install as App</span>
-              </button>
-            ) : (
-              <div className="bg-white/10 backdrop-blur-sm px-4 py-3 rounded-lg text-sm max-w-xs">
-                <p className="font-semibold mb-1">📱 Install this app:</p>
-                <p className="text-xs text-blue-100">
-                  On iPhone: Tap Share <span className="inline-block">↗</span> then "Add to Home Screen"
-                </p>
-              </div>
-            )}
+            {/* Prominent Install Button - Always visible */}
+            <button
+              onClick={handleInstallClick}
+              className="bg-white text-blue-600 dark:text-blue-800 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 transition-all shadow-lg flex items-center gap-2 self-start sm:self-auto whitespace-nowrap"
+            >
+              <span className="text-2xl">📲</span>
+              <span>Install as App</span>
+            </button>
           </div>
         </div>
       </header>
 
       <main className="max-w-4xl mx-auto p-6">
+        {/* Install Instructions Modal */}
+        {showInstallModal && (
+          <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4" onClick={() => setShowInstallModal(false)}>
+            <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 max-w-md w-full shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex justify-between items-start mb-4">
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white">Install Nebiswera</h3>
+                <button onClick={() => setShowInstallModal(false)} className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl leading-none">
+                  ×
+                </button>
+              </div>
+
+              {isIOS ? (
+                <div className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300">Follow these steps to install this app on your iPhone:</p>
+                  <div className="space-y-3">
+                    <div className="flex gap-3 items-start">
+                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">1</div>
+                      <p className="text-gray-700 dark:text-gray-300">Tap the <strong>Share</strong> button <span className="inline-block text-blue-600 text-xl">↗</span> at the bottom of Safari</p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">2</div>
+                      <p className="text-gray-700 dark:text-gray-300">Scroll down and tap <strong>"Add to Home Screen"</strong> <span className="text-xl">📱</span></p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">3</div>
+                      <p className="text-gray-700 dark:text-gray-300">Tap <strong>"Add"</strong> in the top right corner</p>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg mt-4">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      💡 The app will appear on your home screen and work like a native app!
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-gray-600 dark:text-gray-300">To install this app:</p>
+                  <div className="space-y-3">
+                    <div className="flex gap-3 items-start">
+                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">1</div>
+                      <p className="text-gray-700 dark:text-gray-300">Open this website in <strong>Chrome</strong> or <strong>Edge</strong></p>
+                    </div>
+                    <div className="flex gap-3 items-start">
+                      <div className="bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center flex-shrink-0 font-bold text-sm">2</div>
+                      <p className="text-gray-700 dark:text-gray-300">Click the install button that appears in the address bar or use the browser menu</p>
+                    </div>
+                  </div>
+                  <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg mt-4">
+                    <p className="text-sm text-blue-900 dark:text-blue-100">
+                      💡 The app will be installed and accessible from your device!
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              <button onClick={() => setShowInstallModal(false)} className="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-semibold transition-all">
+                Got it!
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Swipe Indicator */}
         {swipeDirection && (
           <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-black/80 text-white px-6 py-4 rounded-lg text-2xl z-50">
@@ -347,10 +408,10 @@ export default function Home() {
             <h2 className="text-2xl font-bold mb-3">📲 9. Install App</h2>
             <p className="text-pink-100 mb-4">Add this web app to your home screen</p>
             <button
-              onClick={installApp}
+              onClick={handleInstallClick}
               className="bg-white text-pink-600 px-6 py-3 rounded-lg font-semibold hover:bg-pink-50 transition-all"
             >
-              {installPrompt ? "Install App" : "Already Installed / Not Available"}
+              Install App
             </button>
           </div>
 

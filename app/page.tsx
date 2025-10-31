@@ -167,13 +167,35 @@ export default function Home() {
       {/* Header */}
       <header className="bg-blue-600 dark:bg-blue-800 text-white p-6 shadow-lg">
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold mb-2">🚀 Nebiswera</h1>
-          <p className="text-blue-100">Web App Feature Demonstrations</p>
+          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+            <div className="flex-1">
+              <h1 className="text-4xl font-bold mb-2">🚀 Nebiswera</h1>
+              <p className="text-blue-100">Web App Feature Demonstrations</p>
 
-          {/* Online Status Indicator */}
-          <div className="mt-3 flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-400' : 'bg-red-400'}`}></div>
-            <span className="text-sm">{isOnline ? 'Online' : 'Offline (Service Worker Active)'}</span>
+              {/* Online Status Indicator */}
+              <div className="mt-3 flex items-center gap-2">
+                <div className={`w-3 h-3 rounded-full ${isOnline ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                <span className="text-sm">{isOnline ? 'Online' : 'Offline (Service Worker Active)'}</span>
+              </div>
+            </div>
+
+            {/* Prominent Install Button */}
+            {installPrompt ? (
+              <button
+                onClick={installApp}
+                className="bg-white text-blue-600 dark:text-blue-800 px-6 py-3 rounded-lg font-bold hover:bg-blue-50 transition-all shadow-lg flex items-center gap-2 self-start sm:self-auto"
+              >
+                <span className="text-2xl">📲</span>
+                <span>Install as App</span>
+              </button>
+            ) : (
+              <div className="bg-white/10 backdrop-blur-sm px-4 py-3 rounded-lg text-sm max-w-xs">
+                <p className="font-semibold mb-1">📱 Install this app:</p>
+                <p className="text-xs text-blue-100">
+                  On iPhone: Tap Share <span className="inline-block">↗</span> then "Add to Home Screen"
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </header>
